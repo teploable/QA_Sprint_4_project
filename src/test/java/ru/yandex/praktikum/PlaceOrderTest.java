@@ -2,7 +2,6 @@ package ru.yandex.praktikum;
 
 import org.hamcrest.MatcherAssert;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,6 +13,7 @@ import ru.yandex.praktikum.pageObject.MainPage;
 import static ru.yandex.praktikum.TestData.*;
 
 @RunWith(Parameterized.class)
+
 public class PlaceOrderTest {
     private final String name;
     private final String surname;
@@ -40,49 +40,31 @@ public class PlaceOrderTest {
         this.comment = comment;
     }
 
-    @Before
-    public void closeCookies() {
-        WebDriver driver = factory.getDriver();
-        var MainPage = new MainPage(driver);
-        MainPage.openMainPage();
-        MainPage.acceptCookiesMainPage();
-    }
-
-    @After
-    public void tearDown() {
-        WebDriver driver = factory.getDriver();
-        driver.quit();
-    }
 
     @Parameterized.Parameters
     public static Object[][] getParameters() {
         return new Object[][] {
-                {NAME_1, SURNAME_1, ADDRESS_1, METRO_STATION_INDEX_1, PHONE_NUMBER_1, DATE_1, RENTAL_PERIOD_1, COLOUR_BLACK, COMMENT_1},
-                {NAME_2, SURNAME_2, ADDRESS_2, METRO_STATION_INDEX_2, PHONE_NUMBER_2, DATE_2, RENTAL_PERIOD_2, COLOUR_GREY, COMMENT_2}
+                {NAME_ALEXANDER, SURNAME_PUSHKIN, ADDRESS_UL_MOSKOVSKAYA, METRO_KRASNOSELSKAYA, PHONE_NUMBER_1, DATE_30, ONE_DAY_RENT, COLOUR_BLACK, COMMENT_POTATO},
+                {NAME_KARL, SURNAME_BRYULLOV, ADDRESS_UL_ZHIVOPISNAYA, METRO_SOKOLNIKI, PHONE_NUMBER_2, DATE_31, TWO_DAYS_RENT, COLOUR_GREY, COMMENT_BIGMAC}
         };
     }
 
     @Test
     public void orderByButtonInHeader() {
         WebDriver driver = factory.getDriver();
-        var mainPage = new MainPage(driver);
+        var objMainPage = new MainPage(driver);
+        objMainPage.openMainPage();
+        objMainPage.acceptCookiesMainPage();
 
-        var orderPageForWhom = mainPage.clickOrderButtonInHeader();
-        orderPageForWhom.nameOrder(name);
-        orderPageForWhom.surnameOrder(surname);
-        orderPageForWhom.addressOrder(address);
-        orderPageForWhom.selectMetro(metroStationIndex);
-        orderPageForWhom.phoneOrder(phoneNumber);
+        var objAboutCustomerPage = objMainPage.clickOrderButtonInHeader();
+        objAboutCustomerPage.setAllAboutCustomerFields(name, surname, address, metroStationIndex, phoneNumber);
 
-        var orderPageAboutRent = orderPageForWhom.clickButtonLater();
-        orderPageAboutRent.chooseDeliveryDate(date);
-        orderPageAboutRent.chooseRentalPeriod(rentalPeriod);
-        orderPageAboutRent.chooseColourCheckbox(scooterColour);
-        orderPageAboutRent.typeComment(comment);
-        orderPageAboutRent.clickOrderButton();
-        orderPageAboutRent.clickAgreeButton();
+        var objAboutRentPage = objAboutCustomerPage.clickButtonFurther();
+        objAboutRentPage.setALlAboutRentFields(date, rentalPeriod, scooterColour, comment);
+        objAboutRentPage.clickOrderButton();
+        objAboutRentPage.clickAgreeButton();
 
-        String text = orderPageAboutRent.getTextSuccessfulOrder();
+        String text = objAboutRentPage.getTextSuccessfulOrder();
         MatcherAssert.assertThat(text, startsWith(EXPECTED_CONFIRMATION_TEXT));
 
     }
@@ -90,25 +72,27 @@ public class PlaceOrderTest {
     @Test
     public void orderByButtonUnderRoadMap() {
         WebDriver driver = factory.getDriver();
-        var mainPage = new MainPage(driver);
-        mainPage.scrollToOrderButtonUnderRoadMap();
 
-        var orderPageForWhom = mainPage.clickOrderButtonUnderRoadMap();
-        orderPageForWhom.nameOrder(name);
-        orderPageForWhom.surnameOrder(surname);
-        orderPageForWhom.addressOrder(address);
-        orderPageForWhom.selectMetro(metroStationIndex);
-        orderPageForWhom.phoneOrder(phoneNumber);
+        var objMainPage = new MainPage(driver);
+        objMainPage.openMainPage();
+        objMainPage.acceptCookiesMainPage();
+        objMainPage.scrollToOrderButtonUnderRoadMap();
 
-        var orderPageAboutRent = orderPageForWhom.clickButtonLater();
-        orderPageAboutRent.chooseDeliveryDate(date);
-        orderPageAboutRent.chooseRentalPeriod(rentalPeriod);
-        orderPageAboutRent.chooseColourCheckbox(scooterColour);
-        orderPageAboutRent.typeComment(comment);
-        orderPageAboutRent.clickOrderButton();
-        orderPageAboutRent.clickAgreeButton();
+        var objAboutCustomerPage = objMainPage.clickOrderButtonUnderRoadMap();
+        objAboutCustomerPage.setAllAboutCustomerFields(name, surname, address, metroStationIndex, phoneNumber);
 
-        String text = orderPageAboutRent.getTextSuccessfulOrder();
+        var objAboutRentPage = objAboutCustomerPage.clickButtonFurther();
+        objAboutRentPage.setALlAboutRentFields(date, rentalPeriod, scooterColour, comment);
+        objAboutRentPage.clickOrderButton();
+        objAboutRentPage.clickAgreeButton();
+
+        String text = objAboutRentPage.getTextSuccessfulOrder();
         MatcherAssert.assertThat(text, startsWith(EXPECTED_CONFIRMATION_TEXT));
+    }
+
+    @After
+    public void tearDown() {
+        WebDriver driver = factory.getDriver();
+        driver.quit();
     }
 }
